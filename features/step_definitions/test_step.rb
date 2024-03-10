@@ -1,36 +1,41 @@
 Given(/^user goes to "([^"]*)" home page$/) do |website|
     case website
-    when 'lazada'
-        @browser.goto("https://lazada.co.id/")
-    when 'shopee'
-        @browser.goto("https://shopee.co.id/")
+    when 'tokopedia'
+        @browser.goto("https://www.tokopedia.com/")
+    when 'bukalapak'
+        @browser.goto("https://bukalapak.com/")
     end
 end
 
 When(/^user search "([^"]*)" in "([^"]*)" page$/) do |search, website|
-    @search = search
+    @search = search.downcase
     case website 
-    when 'lazada'
-        search_field = @browser.text_field(id: 'q')
-    when 'shopee'
-        search_field = @browser.text_field(class: 'shopee-searchbar-input__input')
+    when 'tokopedia'
+        search_field = @browser.text_field(xpath: "//input[@type='search']")
+    when 'bukalapak'
+        search_field = @browser.text_field(xpath: "//input[@name='search[keywords]']")
     end
     search_field.set @search
-    search_field.set Keys.ENTER
+    search_field.send_keys(:enter)
 end
 
 Then(/^user validate search result in "([^"]*)" is correct$/) do |website|
     case website 
-    when 'lazada'
-        product_list_name = @browser.element(xpath: "//div[@data-qa-locator='general-products']/descendant::img[@type='product']/following::a[contains(@title,'iPhone 15 Pro')]")
-    when 'shopee'
-        product_list_name = @browser.text_field(xpath: "//li/a/descendant::div[2]/div[2]/div[1]/div[1]")
+    when 'tokopedia'
+        product_list_name = @browser.divs(xpath: "//div[@data-testid='spnSRPProdName']")
+    when 'bukalapak'
+        product_list_name = @browser.divs(xpath: "//div[@class='bl-product-card-new__description']/section/p/a")
     end
-    i = 0
     result = true
-    for i < product_list_name.length
-        if product_list_name[i].value != @search
+    product_list_name.each do |element|
+        element_downcase = element.text.downcase
+        if !element_downcase.include?(@search)
             result = false
+            break
         end
     end
+    expect(result).to be true
 end
+
+
+

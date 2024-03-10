@@ -1,4 +1,6 @@
 require 'watir'
+require 'pry'
+
 Before do
     @browser = Watir::Browser.new :chrome
     @browser.window.maximize

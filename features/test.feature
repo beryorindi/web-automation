@@ -1,13 +1,13 @@
-Feature: Search Iphone in ecommerce webstie
+Feature: Search Iphone in ecommerce website
 
-@lazada
-Scenario: Get iPhone list in lazada 
-    Given user goes to "lazada" home page
-    When user search "iPhone 15 pro" in "lazada" page
-    Then user validate search result in "lazada" is correct
+@tokopedia
+Scenario: Get iPhone list in tokopedia 
+    Given user goes to "tokopedia" home page
+    When user search "iPhone 15 Pro" in "tokopedia" page
+    Then user validate search result in "tokopedia" is correct
 
-@shopee
-Scenario: Get iPhone list in shopee 
-    Given user goes to "shopee" home page
-    When user search "iPhone 15 pro" in "shopee" page
-    And user validate search result in "shopee" is correct
+@bukalapak
+Scenario: Get iPhone list in bukalapak 
+    Given user goes to "bukalapak" home page
+    When user search "iPhone 15 Pro" in "bukalapak" page
+    And user validate search result in "bukalapak" is correct
