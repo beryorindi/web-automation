@@ -41,39 +41,55 @@ And(/^user store product information from "([^"]*)"$/) do |website|
     Watir::Wait.until { @browser.ready_state == 'complete' }
     case website 
     when 'tokopedia'
-        products_ecommerce1 = []
+        Watir::Wait.until { @browser.divs(xpath: "//div[@data-testid='spnSRPProdName']").any? }
         products_name = @browser.divs(xpath: "//div[@data-testid='spnSRPProdName']")
         products_price = @browser.divs(xpath: "//div[@data-testid='spnSRPProdPrice']")
         products_link = @browser.as(xpath: "//div[@data-testid='spnSRPProdPrice']/preceding::a[1]")
         products_name.zip(products_price, products_link).each do |name, price, link|
+            if price.text.include?('-')
+                numbers = price.text.scan(/\d+,\d+/).map { |num_str| num_str.gsub(/[^\d,]/, '').tr(',', '.').to_f }
+                numeric_price = numbers[0] * 1000000
+            else
+                numeric_price = price.text.scan(/\d+/).join.gsub('jt', '000').to_i
+            end
             link_value = link.attribute_value('href')
-            product = { website: 'tokopedia', name: name.text, price: price.text, link: link_value }
-            products_ecommerce1 << product
-        end
-        products_ecommerce1.each do |product|
-            puts "Website: #{product[:website]}"
-            puts "Name: #{product[:name]}"
-            puts "Price: #{product[:price]}"
-            puts "Link: #{product[:link]}"
-            puts "------------------------"
+            product = { website: 'tokopedia', name: name.text, price: numeric_price, link: link_value }
+            @product_ecommerce1 << product
         end
     when 'bukalapak'
         products_name = @browser.as(xpath: "//div[@class='bl-product-card-new__description']/section/p/a")
         products_price = @browser.ps(xpath: "//div[@class='bl-product-card-new__price-and-currency']/p[2]")
         products_link = @browser.as(xpath: "//section[@class='bl-product-card-new__name']/p/a")
-        product_ecommerce2 = []
         products_name.zip(products_price, products_link).each do |name, price, link|
             link_value = link.attribute_value('href')
-            product = { website: 'bukalapak', name: name.text, price: price.text, link: link_value  }
-            product_ecommerce2 << product
-        end
-        product_ecommerce2.each do |product|
-            puts "Website: #{product[:website]}"
-            puts "Name: #{product[:name]}"
-            puts "Price: #{product[:price]}"
-            puts "Link: #{product[:link]}"
-            puts "------------------------"
+            numeric_price = price.text.gsub(/[^\d]/, '').to_i
+            product = { website: 'bukalapak', name: name.text, price: numeric_price, link: link_value  }
+            @product_ecommerce2 << product
         end
     end
 end
 
+Then(/^user get combined product sort by ascending price$/) do
+    product_ecommerce = @product_ecommerce1 + @product_ecommerce2
+    puts "------------------------"
+    puts "Products:"
+    puts "------------------------"
+    product_ecommerce.each do |product|
+        puts "Website: #{product[:website]}"
+        puts "Name: #{product[:name]}"
+        puts "Price: #{product[:price]}"
+        puts "Link: #{product[:link]}"
+        puts "------------------------"
+    end
+    sorted_products = product_ecommerce.sort_by { |product| product[:price] }
+    puts "------------------------"
+    puts "Sorted Products:"
+    puts "------------------------"
+    sorted_products.each do |product|
+        puts "Website: #{product[:website]}"
+        puts "Name: #{product[:name]}"
+        puts "Price: #{product[:price]}"
+        puts "Link: #{product[:link]}"
+        puts "------------------------"
+    end
+end
